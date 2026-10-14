@@ -1,0 +1,77 @@
+==========================================================================================
+Centralizador en la nube de servicio de domotica domiciliario
+Se ejecuta en un servidor accesible a travez de internet, permite administrar los
+sistemas hogareños asociados desde un navegador o desde Alexa
+==========================================================================================
+
+Crear entorno virtual:
+    python -m venv microdom
+
+Entrar a entorno virtual:
+    source microdom/bin/activate
+
+Salir de entorno virtual
+    deactivate
+
+Docker
+==========================================================================================
+
+Crear imagen utilizando DockerFile con etiqueta microdom
+    docker build -t microdom-cloud .
+
+Ejecutar el contenedor con volumen persistente y variables de entorno
+
+docker run --rm -it \
+  -e DBUSER=dompi_web \
+  -e DBPASSWORD=dompi_web \
+  -e DBHOST=192.168.10.32 \
+  -e DBNAME=DB_DOMPICLOUD \
+  --name microdom-cloud \
+  -v /etc/microdom.conf:/app/etc/microdom.conf \
+  -v /var/log/microdom:/app/logs \
+  -v /var/lib/microdom_cloud/html:/app/html \
+  -v /var/lib/microdom_cloud/download:/app/download \
+  -p 8082:8082 microdom-cloud
+
+Daemon:
+docker run --rm -it \
+  -d --restart unless-stopped \
+  -e DBUSER=dompi_web \
+  -e DBPASSWORD=dompi_web \
+  -e DBHOST=192.168.10.32 \
+  -e DBNAME=DB_DOMPICLOUD \
+  --name microdom-cloud \
+  -v /etc/microdom.conf:/app/etc/microdom.conf \
+  -v /var/log/microdom:/app/logs \
+  -v /var/lib/microdom_cloud/html:/app/html \
+  -v /var/lib/microdom_cloud/download:/app/download \
+  -p 8082:8082 microdom-cloud
+
+
+docker logs <nombre_o_id>
+docker logs -f <container>
+docker logs --tail 100 -t <container>
+
+
+GitHub
+========================
+
+Para subir a GHCR
+docker build -t microdom-cloud:latest .
+docker tag microdom-cloud:latest ghcr.io/wpirri/microdom-cloud:latest
+docker push ghcr.io/wpirri/microdom-cloud:latest
+
+
+Ejecutar desde el repositorio
+docker run -it \
+  -d --restart unless-stopped \
+  -e DBUSER=dompi_web \
+  -e DBPASSWORD=dompi_web \
+  -e DBHOST=192.168.10.32 \
+  -e DBNAME=DB_DOMPICLOUD \
+  --name microdom-cloud \
+  -v /etc/microdom.conf:/app/etc/microdom.conf \
+  -v /var/log/microdom:/app/logs \
+  -v /var/lib/microdom_cloud/html:/app/html \
+  -v /var/lib/microdom_cloud/download:/app/download \
+  -p 8082:8082 ghcr.io/wpirri/microdom-cloud:latest
